@@ -1,6 +1,6 @@
 ---
 name: native-web
-description: Guides building UI components and interactions using modern native HTML, CSS, and browser APIs instead of framework components. Use when building frontend UI, implementing interactions, adding animations, creating modals/dropdowns/tooltips, styling components, or when reaching for ShadCN, MUI, Radix, or similar component libraries. Also activates when writing CSS that could use modern layout, transitions, or selectors.
+description: Guides building UI components and interactions using modern native HTML, CSS, and browser APIs instead of framework components. Use when building frontend UI, implementing interactions, adding animations, creating modals/dropdowns/tooltips, styling components, building accessible components, avoiding React component libraries, building without dependencies, using the Popover API, using the dialog element, authoring Web Components, or when reaching for ShadCN, MUI, Radix, or similar component libraries. Also activates when writing CSS that could use modern layout, transitions, or selectors.
 ---
 
 Before writing any UI code, ask: **does a native HTML element, CSS feature, or browser API already solve this?**
@@ -101,6 +101,94 @@ Web Components are universal Baseline (all modern browsers). No polyfills needed
 | Truncation JS | `text-overflow: ellipsis` / `-webkit-line-clamp` | Pure CSS |
 | Auto-resize textarea JS | `field-sizing: content` | One CSS property (Baseline 2024) |
 
+## `<dialog>` pattern
+
+The native `<dialog>` element handles modal UI without a single library. Use `showModal()` for a true modal (focus-trapped, backdrop, Escape key) or `show()` for a non-modal panel.
+
+```html
+<dialog id="confirm-dialog">
+  <h2>Confirm action</h2>
+  <form method="dialog">
+    <button value="cancel">Cancel</button>
+    <button value="confirm">Confirm</button>
+  </form>
+</dialog>
+```
+
+```js
+const dialog = document.getElementById('confirm-dialog');
+document.getElementById('open-btn').addEventListener('click', () => dialog.showModal());
+
+// returnValue is the value attribute of the button that submitted the form
+dialog.addEventListener('close', () => {
+  if (dialog.returnValue === 'confirm') runAction();
+});
+```
+
+```css
+dialog {
+  border: none;
+  border-radius: 8px;
+  padding: 1.5rem;
+  /* Animate open state with @starting-style */
+  transition: opacity 0.2s, display 0.2s allow-discrete;
+  opacity: 1;
+}
+@starting-style {
+  dialog[open] { opacity: 0; }
+}
+dialog::backdrop {
+  background: hsl(0 0% 0% / 0.5);
+  backdrop-filter: blur(2px);
+}
+```
+
+**What you get for free:** focus trap, Escape key close, `::backdrop` overlay, `returnValue` from form submission, `close` event, correct ARIA role.
+
+## Popover API
+
+Use the Popover API (Baseline 2024) for **non-modal overlays** — tooltips, dropdowns, menus, pickers — anything that appears above content without blocking interaction with the page. Use `<dialog showModal()>` when you need a **modal** that traps focus and requires a decision.
+
+```html
+<!-- Button wires to popover by ID — zero JS -->
+<button popovertarget="my-menu">Open menu</button>
+
+<ul id="my-menu" popover>
+  <li><a href="/profile">Profile</a></li>
+  <li><a href="/settings">Settings</a></li>
+  <li><button>Log out</button></li>
+</ul>
+```
+
+```css
+/* Anchor positioning — progressive enhancement */
+#trigger { anchor-name: --trigger; }
+#my-menu {
+  position-anchor: --trigger;
+  position-area: block-end span-inline-end;
+  margin: 0.25rem 0 0;
+}
+
+/* Animate with @starting-style */
+[popover] {
+  transition: opacity 0.15s, display 0.15s allow-discrete;
+  opacity: 1;
+}
+@starting-style {
+  [popover]:popover-open { opacity: 0; }
+}
+```
+
+**Popover vs `<dialog>` quick rule:**
+
+| Need | Use |
+|---|---|
+| Non-modal overlay (tooltip, dropdown, menu) | `popover` attribute |
+| Modal requiring user decision | `<dialog>` + `showModal()` |
+| Inline disclosure | `<details>`/`<summary>` |
+
+**What you get for free:** top-layer stacking (no `z-index` wars), light-dismiss on click-outside, Escape key close, `:popover-open` CSS state pseudo-class.
+
 ## Modern CSS that replaces JS patterns
 
 - **Fluid sizing without breakpoints**: `clamp(1rem, 2.5vw + 0.5rem, 1.5rem)`
@@ -113,3 +201,7 @@ Web Components are universal Baseline (all modern browsers). No polyfills needed
 - **View transitions**: `@view-transition { navigation: auto }` for route-change animations (Baseline 2024)
 
 When a CSS feature isn't at full baseline, note it with a comment and provide a graceful fallback — but don't avoid it. Progressive enhancement is the right approach.
+
+## Additional resources
+
+- For detailed implementation patterns (dialog, popover, CSS-only tabs, form-associated elements), see [references/patterns.md](references/patterns.md)
