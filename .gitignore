@@ -2,3 +2,7 @@
 __pycache__/
 .idea/
 .vscode/
+.claude/
+.planning/
+
+ROADMAP.md
