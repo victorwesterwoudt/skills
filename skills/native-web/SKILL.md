@@ -1,6 +1,6 @@
 ---
 name: native-web
-description: Guides building UI components and interactions using modern native HTML, CSS, and browser APIs instead of framework components. Use when building frontend UI, implementing interactions, adding animations, creating modals/dropdowns/tooltips, styling components, building accessible components, avoiding React component libraries, building without dependencies, using the Popover API, using the dialog element, authoring Web Components, or when reaching for ShadCN, MUI, Radix, or similar component libraries. Also activates when writing CSS that could use modern layout, transitions, or selectors.
+description: Build UI using native HTML, CSS, and browser APIs instead of component libraries. Use when building frontend UI, implementing modals/dropdowns/tooltips/animations, or when reaching for ShadCN, MUI, Radix, or similar. Also when writing CSS that could use modern layout, :has(), container queries, Popover API, or the dialog element.
 ---
 
 Before writing any UI code, ask: **does a native HTML element, CSS feature, or browser API already solve this?**

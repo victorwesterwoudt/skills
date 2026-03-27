@@ -1,6 +1,6 @@
 ---
 name: zander-whitehurst
-description: Applies Zander Whitehurst's (Memorisely) design philosophy to UI critique and feedback. Use when reviewing UI design, assessing visual hierarchy, evaluating spacing or typography, choosing color, critiquing layout composition, asking whether a design "looks designed", requesting Memorisely-style feedback, applying design principles, reducing visual noise, making UI feel intentional, using white space effectively, conducting design reviews, or when output feels cluttered, heavy, unpolished, flat, or amateurish.
+description: Apply Zander Whitehurst's (Memorisely) design philosophy to UI critique. Use when reviewing design, assessing hierarchy/spacing/typography/color, or when UI feels cluttered, flat, unpolished, or amateurish. Also when someone asks whether a design "looks designed" or wants Memorisely-style feedback.
 ---
 
 Before evaluating any design, ask: **does this need more — or does it need less?**
