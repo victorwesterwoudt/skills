@@ -7,24 +7,15 @@ Before writing any UI code, ask: **does a native HTML element, CSS feature, or b
 
 ## The anti-pattern to avoid
 
-The most common mistake in modern frontend:
-
-1. Take a native element that already works (`<input type="radio">`, `<select>`, `<dialog>`)
-2. Hide it and rebuild it using `<div>` and `<span>`
-3. Re-implement focus, keyboard navigation, and ARIA in JavaScript
-4. Ship more bytes, more bugs, and worse accessibility than the browser gave you for free
-
-**Styling is not a JavaScript concern.** The W3C ARIA spec is explicit: *"If you can use a native HTML element with the semantics and behavior you require already built in, do so."*
-
-The canonical example: a ShadCN radio button is three libraries deep (ShadCN → Radix UI → custom React), imports the entire Lucide icon library to draw the selection dot, and re-implements ARIA that the browser already provides. That dot is `border-radius: 50%`. The whole abstraction exists to achieve styling.
+The most common frontend mistake: take a native element (`<input type="radio">`, `<select>`, `<dialog>`), hide it, rebuild it in `<div>` + JS, and re-implement ARIA the browser already provides — shipping more bytes, more bugs, worse accessibility.
 
 ```html
-<!-- This is a radio button. Accessible, keyboard-navigable, form-compatible. Zero JS. -->
+<!-- Accessible, keyboard-navigable, form-compatible. Zero JS. -->
 <input type="radio" name="beverage" value="coffee" id="coffee">
 <label for="coffee">Coffee</label>
 ```
 
-Style it with CSS using `appearance: none` + `::before` + `:checked`. No library needed.
+Style it with `appearance: none` + `::before` + `:checked`. No library needed.
 
 ## Decision rule
 
@@ -39,48 +30,24 @@ Use a library only for: complex widgets with no native equivalent (combobox, cal
 
 ## Web Components
 
-When a native element doesn't fit but you'd otherwise reach for a React component, consider a Web Component. They're part of the platform: no framework, no build step, and they work inside React, Vue, Svelte, or plain HTML.
+When a native element doesn't fit but you'd otherwise reach for a React component, use a Web Component — part of the platform, no framework, no build step, works inside React/Vue/Svelte/plain HTML.
 
-```js
-class ToastMessage extends HTMLElement {
-  connectedCallback() {
-    this.innerHTML = `<p>${this.getAttribute('message')}</p>`;
-    setTimeout(() => this.remove(), 3000);
-  }
-}
-customElements.define('toast-message', ToastMessage);
-```
-```html
-<toast-message message="Saved!"></toast-message>
-```
+**Use when:** you need a reusable custom element with encapsulated styles across frameworks, a drop-in widget with no dependencies, or an extended native element (`class IconButton extends HTMLButtonElement`).
 
-**Use a Web Component when:**
-- You need a reusable custom element with encapsulated styles (Shadow DOM) that works across frameworks or projects
-- You're building a widget that should be dropped in anywhere without dependencies: media players, code blocks, custom inputs, embeddable UI
-- You want to extend a native element and keep its built-in accessibility: `class IconButton extends HTMLButtonElement`
-
-**Shadow DOM** keeps styles encapsulated — no class name collisions, no leaking in or out:
 ```js
 class MyCard extends HTMLElement {
   connectedCallback() {
     const shadow = this.attachShadow({ mode: 'open' });
     shadow.innerHTML = `
-      <style>p { color: red; }</style> <!-- scoped to this element only -->
-      <slot></slot>
+      <style>p { color: red; }</style>  /* scoped */
+      <slot></slot>                      /* like React children */
     `;
   }
 }
+customElements.define('my-card', MyCard);
 ```
 
-**Slots** let consumers provide content, just like React children:
-```html
-<my-card>
-  <span slot="title">Hello</span>
-  <p>Body content here</p>
-</my-card>
-```
-
-Web Components are universal Baseline (all modern browsers). No polyfills needed.
+Baseline in all modern browsers. No polyfills needed.
 
 ## Native element reference
 
@@ -103,7 +70,7 @@ Web Components are universal Baseline (all modern browsers). No polyfills needed
 
 ## `<dialog>` pattern
 
-The native `<dialog>` element handles modal UI without a single library. Use `showModal()` for a true modal (focus-trapped, backdrop, Escape key) or `show()` for a non-modal panel.
+Use `showModal()` for a true modal (focus-trapped, `::backdrop`, Escape key) or `show()` for a non-modal panel.
 
 ```html
 <dialog id="confirm-dialog">
@@ -116,78 +83,38 @@ The native `<dialog>` element handles modal UI without a single library. Use `sh
 ```
 
 ```js
-const dialog = document.getElementById('confirm-dialog');
-document.getElementById('open-btn').addEventListener('click', () => dialog.showModal());
-
-// returnValue is the value attribute of the button that submitted the form
+dialog.showModal();
 dialog.addEventListener('close', () => {
   if (dialog.returnValue === 'confirm') runAction();
 });
 ```
 
-```css
-dialog {
-  border: none;
-  border-radius: 8px;
-  padding: 1.5rem;
-  /* Animate open state with @starting-style */
-  transition: opacity 0.2s, display 0.2s allow-discrete;
-  opacity: 1;
-}
-@starting-style {
-  dialog[open] { opacity: 0; }
-}
-dialog::backdrop {
-  background: hsl(0 0% 0% / 0.5);
-  backdrop-filter: blur(2px);
-}
-```
+Animate with `@starting-style` + `transition: opacity allow-discrete`. Style `::backdrop` with CSS. See [references/patterns.md](references/patterns.md) for full CSS.
 
-**What you get for free:** focus trap, Escape key close, `::backdrop` overlay, `returnValue` from form submission, `close` event, correct ARIA role.
+**Free:** focus trap, Escape key, `::backdrop`, `returnValue`, `close` event, ARIA role.
 
 ## Popover API
 
-Use the Popover API (Baseline 2024) for **non-modal overlays** — tooltips, dropdowns, menus, pickers — anything that appears above content without blocking interaction with the page. Use `<dialog showModal()>` when you need a **modal** that traps focus and requires a decision.
+Use `popover` (Baseline 2024) for **non-modal overlays** — tooltips, dropdowns, menus. Use `<dialog showModal()>` when focus must be trapped.
 
 ```html
-<!-- Button wires to popover by ID — zero JS -->
+<!-- Zero JS — button wires to popover by ID -->
 <button popovertarget="my-menu">Open menu</button>
-
 <ul id="my-menu" popover>
   <li><a href="/profile">Profile</a></li>
-  <li><a href="/settings">Settings</a></li>
   <li><button>Log out</button></li>
 </ul>
 ```
 
-```css
-/* Anchor positioning — progressive enhancement */
-#trigger { anchor-name: --trigger; }
-#my-menu {
-  position-anchor: --trigger;
-  position-area: block-end span-inline-end;
-  margin: 0.25rem 0 0;
-}
-
-/* Animate with @starting-style */
-[popover] {
-  transition: opacity 0.15s, display 0.15s allow-discrete;
-  opacity: 1;
-}
-@starting-style {
-  [popover]:popover-open { opacity: 0; }
-}
-```
-
-**Popover vs `<dialog>` quick rule:**
+Position with CSS anchor positioning (`anchor-name` / `position-anchor`). Animate with `@starting-style`. See [references/patterns.md](references/patterns.md) for full CSS.
 
 | Need | Use |
 |---|---|
-| Non-modal overlay (tooltip, dropdown, menu) | `popover` attribute |
-| Modal requiring user decision | `<dialog>` + `showModal()` |
+| Non-modal overlay | `popover` attribute |
+| Modal (focus trap) | `<dialog>` + `showModal()` |
 | Inline disclosure | `<details>`/`<summary>` |
 
-**What you get for free:** top-layer stacking (no `z-index` wars), light-dismiss on click-outside, Escape key close, `:popover-open` CSS state pseudo-class.
+**Free:** top-layer stacking, light-dismiss, Escape key, `:popover-open` pseudo-class.
 
 ## Modern CSS that replaces JS patterns
 

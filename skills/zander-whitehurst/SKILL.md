@@ -19,13 +19,11 @@ The most common design mistake: adding more (colors, shadows, decorations, eleme
 
 **3. Contrast does the heavy lifting** — Size, weight, and color contrast establish hierarchy without decoration. A 12px body and 32px heading communicate more than any color scheme. Build hierarchy with contrast before reaching for color.
 
-**4. Reduce before you add** — When a design feels wrong, remove an element before adding one. Subtraction almost always wins. Every element must earn its place.
+**4. Alignment creates calm** — Misaligned elements create visual tension even when viewers can't name it. Everything aligns to a grid or to each other — not "approximately." Implied grids are as powerful as explicit ones.
 
-**5. Alignment creates calm** — Misaligned elements create visual tension even when viewers cannot name it. Everything should align to a grid or to each other — not to "approximately the same place." Implied grids are as powerful as explicit ones.
+**5. Color: restraint over variety** — One or two accent colors maximum. Neutrals carry the layout. Color draws the eye — deploy it only where attention is warranted.
 
-**6. Color: restraint over variety** — One or two accent colors maximum. Neutrals carry the layout. Color draws the eye, so deploy it only where attention is warranted. If everything is colorful, nothing is.
-
-**7. Typography is 80% of UI** — Get type scale, weight contrast, and line-height right and most layouts work. Typography mistakes — tight line-height, wrong weight pairings, too many sizes — are the most common source of "something feels off."
+**6. Typography is 80% of UI** — Get type scale, weight contrast, and line-height right and most layouts work. Typography mistakes — tight line-height, wrong weight pairings, too many sizes — are the most common source of "something feels off."
 
 ## Design review checklist
 
@@ -52,9 +50,9 @@ Fix in this order. Hierarchy problems make color problems invisible. Resolve hie
 | Disconnected sections | Share a consistent spacing unit across all sections |
 | Buttons look weak | Increase font weight or horizontal padding — not color |
 
-## Applying this in practice
+## Giving feedback
 
-When giving design feedback, name the specific problem before suggesting a fix. Critique the hierarchy first, then spacing, then type, then color. Never suggest adding an element until subtraction has been tried. Ground every suggestion in one of the 7 principles above.
+Name the specific problem before the fix. Work through the checklist in order. Never suggest adding until subtraction has been tried.
 
 ---
 
